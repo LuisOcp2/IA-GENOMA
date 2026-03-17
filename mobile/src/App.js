@@ -1,5 +1,5 @@
 /**
- * IA-GENOMA App - Punto de entrada principal
+ * IA-GENOMA App v2 - Navegación con 3 tabs
  */
 
 import React from 'react';
@@ -7,6 +7,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Text} from 'react-native';
 import HomeScreen from './screens/HomeScreen';
+import RemindersScreen from './screens/RemindersScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -18,10 +19,10 @@ export default function App() {
         dark: true,
         colors: {
           primary: '#9B59F5',
-          background: '#0D0D1A',
-          card: '#1A1A2E',
+          background: '#080812',
+          card: '#0D0D1F',
           text: '#FFFFFF',
-          border: '#333',
+          border: '#1A1A30',
           notification: '#9B59F5',
         },
       }}>
@@ -29,28 +30,30 @@ export default function App() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: '#1A1A2E',
-            borderTopColor: '#2A2A4A',
-            height: 60,
+            backgroundColor: '#0D0D1F',
+            borderTopColor: '#1A1A30',
+            height: 62,
             paddingBottom: 8,
+            paddingTop: 4,
           },
           tabBarActiveTintColor: '#9B59F5',
-          tabBarInactiveTintColor: '#555',
-          tabBarLabelStyle: {fontSize: 12, fontWeight: '600'},
+          tabBarInactiveTintColor: '#444',
+          tabBarLabelStyle: {fontSize: 11, fontWeight: '700', letterSpacing: 0.5},
         }}>
         <Tab.Screen
           name="Agente"
           component={HomeScreen}
-          options={{
-            tabBarIcon: ({color}) => <Text style={{fontSize: 22, color}}>🧬</Text>,
-          }}
+          options={{tabBarIcon: ({color}) => <Text style={{fontSize: 24, color}}>🧬</Text>}}
+        />
+        <Tab.Screen
+          name="Recordatorios"
+          component={RemindersScreen}
+          options={{tabBarIcon: ({color}) => <Text style={{fontSize: 24, color}}>⏰</Text>}}
         />
         <Tab.Screen
           name="Ajustes"
           component={SettingsScreen}
-          options={{
-            tabBarIcon: ({color}) => <Text style={{fontSize: 22, color}}>⚙️</Text>,
-          }}
+          options={{tabBarIcon: ({color}) => <Text style={{fontSize: 24, color}}>⚙️</Text>}}
         />
       </Tab.Navigator>
     </NavigationContainer>

@@ -1,7 +1,6 @@
-"""IA-GENOMA - Núcleo del Agente LangChain"""
+"""IA-GENOMA - Núcleo del Agente LangChain v2 - Con todas las herramientas"""
 
 import os
-from typing import Optional
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -16,25 +15,30 @@ from agent.tools.calendar_tool import get_calendar_events_tool
 from agent.tools.notes_tool import create_note_tool, list_notes_tool
 from agent.tools.datetime_tool import get_datetime_tool
 from agent.tools.android_tool import send_android_action_tool
+from agent.tools.memory_tool import remember_tool, recall_tool
+from agent.tools.weather_tool import get_weather_tool
+from agent.tools.whatsapp_tool import send_whatsapp_tool, open_app_tool
+from agent.tools.timer_tool import set_alarm_tool, set_timer_tool
 
 load_dotenv()
 
 
 class GenomaAgent:
-    """Agente personal GENOMA con memoria por sesión"""
+    """Agente personal GENOMA con memoria por sesión y todas las herramientas"""
 
     def __init__(self):
         self.llm = self._load_llm()
         self.tools = self._load_tools()
-        self.conversation_history = {}  # session_id -> [messages]
+        self.conversation_history = {}
         self.max_history = int(os.getenv("MAX_CONVERSATION_HISTORY", 20))
         self.agent_executor = self._build_agent()
-        print(f"[GENOMA] Agente iniciado con proveedor: {os.getenv('LLM_PROVIDER', 'groq')}")
+        provider = os.getenv('LLM_PROVIDER', 'groq')
+        model = os.getenv('LLM_MODEL', 'llama-3.3-70b-versatile')
+        print(f"[GENOMA] ✅ Agente iniciado | Proveedor: {provider} | Modelo: {model}")
+        print(f"[GENOMA] 🛠️  Herramientas cargadas: {len(self.tools)}")
 
     def _load_llm(self):
-        """Carga el LLM según el proveedor configurado"""
         provider = os.getenv("LLM_PROVIDER", "groq").lower()
-
         if provider == "groq":
             return ChatGroq(
                 api_key=os.getenv("GROQ_API_KEY"),
@@ -63,7 +67,6 @@ class GenomaAgent:
                 temperature=0.7,
             )
         else:
-            # Default: Groq
             return ChatGroq(
                 api_key=os.getenv("GROQ_API_KEY"),
                 model="llama-3.3-70b-versatile",
@@ -71,20 +74,29 @@ class GenomaAgent:
             )
 
     def _load_tools(self):
-        """Carga todas las herramientas del agente"""
         return [
+            # Información y búsqueda
             web_search_tool,
+            get_weather_tool,
+            get_datetime_tool,
+            # Productividad
             create_reminder_tool,
             list_reminders_tool,
             get_calendar_events_tool,
             create_note_tool,
             list_notes_tool,
-            get_datetime_tool,
+            # Memoria del usuario
+            remember_tool,
+            recall_tool,
+            # Control del celular Android
+            send_whatsapp_tool,
+            open_app_tool,
+            set_alarm_tool,
+            set_timer_tool,
             send_android_action_tool,
         ]
 
     def _build_agent(self):
-        """Construye el AgentExecutor con LangChain"""
         agent_name = os.getenv("AGENT_NAME", "GENOMA")
         personality = os.getenv(
             "AGENT_PERSONALITY",
@@ -93,20 +105,25 @@ class GenomaAgent:
 
         system_prompt = f"""{personality}
 
-Tienes acceso a las siguientes herramientas para ayudar a tu usuario:
-- Búsqueda web: para información actualizada
-- Recordatorios: crear y listar recordatorios
-- Calendario: consultar eventos de Google Calendar
-- Notas: crear y listar notas personales
-- Fecha/Hora: obtener fecha y hora actual
-- Acciones Android: enviar comandos al celular del usuario
+Herramientas disponibles:
+🔍 Búsqueda web - información actualizada
+🌤️ Clima - temperatura y pronóstico (Cali por defecto)
+📅 Calendario Google - eventos
+⏰ Recordatorios - crear y listar
+📝 Notas - crear y consultar
+🧠 Memoria - recordar info del usuario entre conversaciones
+📱 WhatsApp - enviar mensajes
+📲 Apps - abrir aplicaciones en el celular
+⏱️ Alarmas/Timers - programar en el celular
+🕐 Fecha y hora actual
 
-Reglas importantes:
-1. Siempre responde en español
-2. Sé conciso en tus respuestas de voz (máximo 3 oraciones)
-3. Si necesitas ejecutar una herramienta, hazlo sin preguntar
-4. Si no puedes hacer algo, dilo claramente
-5. Recuerda el contexto de la conversación
+Reglas:
+1. Responde SIEMPRE en español colombiano
+2. En respuestas de voz sé BREVE (máx 2-3 oraciones)
+3. Ejecuta herramientas sin preguntar si el intent es claro
+4. Si el usuario te dice algo personal, guárdalo en memoria con remember_tool
+5. Antes de responder sobre el usuario, consulta recall_tool si es relevante
+6. Cuando el usuario diga 'abre X', 'manda mensaje a X', 'pon alarma X' → ejecuta directo
 """
 
         prompt = ChatPromptTemplate.from_messages([
@@ -121,15 +138,12 @@ Reglas importantes:
             agent=agent,
             tools=self.tools,
             verbose=True,
-            max_iterations=5,
+            max_iterations=6,
             handle_parsing_errors=True,
         )
 
     async def process(self, text: str, session_id: str = "default") -> dict:
-        """Procesa un mensaje y retorna la respuesta del agente"""
-        # Obtener historial de esta sesión
         history = self.conversation_history.get(session_id, [])
-
         try:
             result = await self.agent_executor.ainvoke({
                 "input": text,
@@ -138,30 +152,17 @@ Reglas importantes:
             response = result["output"]
             actions = result.get("intermediate_steps", [])
 
-            # Actualizar historial
             history.append(HumanMessage(content=text))
             history.append(AIMessage(content=response))
-
-            # Mantener solo los últimos N mensajes
             if len(history) > self.max_history:
                 history = history[-self.max_history:]
-
             self.conversation_history[session_id] = history
 
-            return {
-                "response": response,
-                "actions": [str(a) for a in actions]
-            }
-
+            return {"response": response, "actions": [str(a) for a in actions]}
         except Exception as e:
             print(f"[GENOMA ERROR] {e}")
-            return {
-                "response": f"Hubo un error procesando tu solicitud: {str(e)}",
-                "actions": []
-            }
+            return {"response": f"Ocurrió un error: {str(e)}", "actions": []}
 
     def clear_memory(self, session_id: str):
-        """Limpia el historial de una sesión"""
         if session_id in self.conversation_history:
             del self.conversation_history[session_id]
-            print(f"[GENOMA] Memoria limpiada para sesión: {session_id}")
