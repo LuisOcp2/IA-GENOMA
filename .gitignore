@@ -1,0 +1,46 @@
+# IA-GENOMA - Gitignore Global
+
+# Variables de entorno - NUNCA subir
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Google OAuth
+credentials.json
+token.json
+
+# Base de datos local
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!babel.config.json
+!backend/.env.example
+
+# Audio temporal
+*.mp3
+*.wav
+*.ogg
+
+# IDEs
+.vscode/
+.idea/
+*.DS_Store
+
+# Android builds
+android/app/build/
+android/.gradle/
+
+# Keys de API - CRÍTICO
+*.pem
+*.key
+*.p12
