@@ -39,6 +39,7 @@ export default function HomeScreen() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const scrollRef = useRef(null);
   const isRecording = useRef(false);
+  const recordingStartTime = useRef(null);
 
   // ─── Inicialización ───
   useEffect(() => {
@@ -131,6 +132,7 @@ export default function HomeScreen() {
       return;
     }
     isRecording.current = true;
+    recordingStartTime.current = Date.now();
     setAgentState(STATES.LISTENING);
     Vibration.vibrate(60);
     startRecording();
@@ -139,6 +141,13 @@ export default function HomeScreen() {
   const handlePressOut = async () => {
     if (!isRecording.current) return;
     isRecording.current = false;
+    
+    // Esperar mínimo 1 segundo de grabación para evitar errores
+    const recordingDuration = Date.now() - recordingStartTime.current;
+    if (recordingDuration < 1000) {
+      await new Promise(resolve => setTimeout(resolve, 1000 - recordingDuration));
+    }
+    
     setAgentState(STATES.PROCESSING);
     Vibration.vibrate(30);
 

@@ -25,6 +25,24 @@ export default function App() {
           border: '#1A1A30',
           notification: '#9B59F5',
         },
+        fonts: {
+          regular: {
+            fontFamily: 'System',
+            fontWeight: '400',
+          },
+          medium: {
+            fontFamily: 'System',
+            fontWeight: '500',
+          },
+          bold: {
+            fontFamily: 'System',
+            fontWeight: '700',
+          },
+          heavy: {
+            fontFamily: 'System',
+            fontWeight: '800',
+          },
+        },
       }}>
       <Tab.Navigator
         screenOptions={{

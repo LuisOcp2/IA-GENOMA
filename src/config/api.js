@@ -9,7 +9,7 @@
 // Si usas Cloudflare Tunnel (recomendado para acceso desde cualquier red):
 // export const BACKEND_URL = 'https://tu-subdominio.trycloudflare.com';
 
-export const BACKEND_URL = 'http://10.0.2.2:8000'; // Emulador Android apunta a localhost
+export const BACKEND_URL = 'http://10.0.145.227:8000'; // IP local del PC con backend corriendo
 
 export const API_TOKEN = 'genoma_secret_change_this_2026'; // Debe coincidir con .env del backend
 
