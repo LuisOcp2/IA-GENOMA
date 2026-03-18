@@ -1,0 +1,19 @@
+# React Native
+node_modules/
+.gradle/
+android/app/debug/
+android/app/release/
+android/app/profile/
+build/
+*.keystore
+!debug.keystore
+
+# Logs
+*.log
+
+# iOS
+ios/Pods/
+ios/build/
+
+# Metro
+.metro-health-check*

@@ -1,3 +1,51 @@
+# IA-GENOMA - Gitignore Global
+
+# Variables de entorno - NUNCA subir
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Google OAuth
+credentials.json
+token.json
+
+# Base de datos local
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!babel.config.json
+!backend/.env.example
+
+# Audio temporal
+*.mp3
+*.wav
+*.ogg
+
+# IDEs
+.vscode/
+.idea/
+*.DS_Store
+
+# Android builds
+android/app/build/
+android/.gradle/
+
+# Keys de API - CRÍTICO
+*.pem
+*.key
+*.p12
+
+# React Native específico
 # OSX
 #
 .DS_Store
@@ -24,10 +72,7 @@ DerivedData
 
 # Android/IntelliJ
 #
-build/
 .idea
-.gradle
-local.properties
 *.iml
 *.hprof
 .cxx/
@@ -36,17 +81,11 @@ local.properties
 
 # node.js
 #
-node_modules/
 npm-debug.log
 yarn-error.log
 
 # fastlane
 #
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/
-
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots

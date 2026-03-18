@@ -1,0 +1,45 @@
+# IA-GENOMA Backend Dependencies
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
+
+# LangChain - Orquestador del Agente
+langchain==0.3.13
+langchain-groq==0.2.3
+langchain-google-genai==2.0.7
+langchain-openai==0.2.14
+langchain-community==0.3.13
+langgraph==0.2.60
+
+# LLM Providers
+groq==0.12.0
+google-generativeai==0.8.3
+openai==1.58.1
+
+# STT & Audio
+# IMPORTANTE: httpx debe ser 0.27.x - la 0.28 rompe groq (elimino el arg 'proxies')
+httpx==0.27.2
+aiofiles==24.1.0
+
+# TTS
+edge-tts==6.1.12
+
+# Google Calendar
+google-auth==2.37.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+google-api-python-client==2.155.0
+
+# Utilidades
+python-dotenv==1.0.1
+pydantic==2.10.4
+requests==2.32.3
+pytz==2024.2
+
+# Búsqueda Web
+duckduckgo-search==7.2.1
+
+# Base de datos simple para memoria
+tinydb==4.8.2
